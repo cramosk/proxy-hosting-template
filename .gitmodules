@@ -1,0 +1,3 @@
+[submodule "foundryvtt"]
+	path = foundryvtt
+	url = https://github.com/cramosk/FoundryData.git
