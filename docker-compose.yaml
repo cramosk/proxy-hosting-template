@@ -134,7 +134,7 @@ services:
       - proxy
     volumes:
       - type: bind
-        source: ./foundryvtt/foundrydata
+        source: ./foundryvtt/data
         target: /data
     environment:
       - FOUNDRY_PASSWORD=${foundry_password}
