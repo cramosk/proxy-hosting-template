@@ -120,12 +120,39 @@ services:
     network_mode: host
     pid: host
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     environment:
-      GLANCES_OPT: "--quiet --export prometheus -C /glances/conf/glances.conf"
+      GLANCES_OPT: '--quiet --export prometheus -C /glances/conf/glances.conf'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./glances/config.conf:/glances/conf/glances.conf
+
+  foundryvtt:
+    image: felddy/foundryvtt:release
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - type: bind
+        source: ./foundryvtt/foundrydata
+        target: /data
+    environment:
+      - FOUNDRY_PASSWORD=${foundry_password}
+      - FOUNDRY_USERNAME=${foundry_username}
+      - FOUNDRY_ADMIN_KEY=${foundry_adminkey}
+      - FOUNDRY_PROXY_SSL=true
+      - FOUNDRY_PROXY_PORT=443
+      - FOUNDRY_ROUTE_PREFIX=foundryvtt
+      - FOUNDRY_LICENSE_KEY=${foundry_license}
+    ports:
+      - 30000
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.foundryvtt.rule=PathPrefix(`/foundryvtt`)'
+      - 'traefik.http.routers.foundryvtt.entrypoints=web,websecure'
+      - 'traefik.http.routers.foundryvtt.middlewares=auth'
+      - 'traefik.http.middlewares.auth.basicauth.users=${foundry_users}'
+      - 'traefik.http.services.foundryvtt.loadbalancer.server.port=30000'
 
 networks:
   proxy:
